@@ -1,7 +1,27 @@
-ORG 0x7c00 ; Offset 설정
+ORG 0 ; Offset 설정
 BITS 16 ; 16bit 아키텍처 사용
 
+; BPB 첫 3byte
+__start:
+    jmp short _start
+    nop
+
+; Bios Parameter Block 초기화 부분
+times 33 db 0
+
+_start:
+    jmp 0x7c0:start ; Code Segment 0x7c0 설정하면서 start로 점프
+
 start:
+    cli ; Interrupt Clear
+    mov ax, 0x7c0
+    mov ds, ax
+    mov es, ax
+    mov ax, 0x0
+    mov ss, ax
+    mov sp, 0x7c00 ; Stack 포인터 설정
+
+    sti ; Interrupt 활성화
     call _print
     jmp $ ; Infinte Loop
 
