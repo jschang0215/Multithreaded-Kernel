@@ -1,4 +1,4 @@
-# 16bit Real Mode Development
+# 01. 16bit Real Mode Development
 
 Explained in https://jschang.tistory.com/35
 
