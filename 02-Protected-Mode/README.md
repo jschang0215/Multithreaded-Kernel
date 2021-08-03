@@ -29,4 +29,4 @@ GDT에 대한 자세한 설명은 09. GDT를 참고하시면 됩니다. Real Mod
 GDT를 설정한 후에는 기존의 CS레지스터 값을 GDT Code Segment으로, Data Segment 레지스터(DS, SS, ES, FS, GS)은 GDT Data Segment으로 변경합니다.
 
 ### Cross Compiler Setting
-Cross Compiler는 https://wiki.osdev.org/GCC_Cross-Compiler#Installing_Dependencies을 보고 OS에 맞게 진행하시면 됩니다.
+Cross Compiler는 https://wiki.osdev.org/GCC_Cross-Compiler#Installing_Dependencies 을 보고 OS에 맞게 진행하시면 됩니다.
