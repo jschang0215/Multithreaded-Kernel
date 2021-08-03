@@ -1,6 +1,6 @@
 # Multithreaded-Kernel
 Multithreaded Kernel from Scratch
 
-Tutorial from https://www.udemy.com/course/developing-a-multithreaded-kernel-from-scratch/
+Study Note from Udemy Course "Developing a Multithreaded Kernel From Scratch"
 
-Explained in https://jschang.tistory.com/category/OS/Multi-threaded%20Kernel%20from%20Scratch
+Explained in https://jschang.tistory.com/category/OS/Multi-threaded%20Kernel%20from%20Scratch (Korean 한국어)
