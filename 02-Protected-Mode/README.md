@@ -47,3 +47,61 @@ IDT는 Protected Mode에서 Interrupt에 대한 정보를 담고 있습니다. I
 * Offset (0-15): offset의 하위 주소
 
 IDTR은 IDT를 가리키는 자료구조로 IDT의 주소(Base)와, IDT 크기 - 1(Limit)에 대한 정보를 가집니다. IDT를 부르려면 lidt 명령어를 이용합니다.
+
+### Assembly 함수
+Assembly에서 함수(함수 비슷한)를 선언하는 일반적인 format은 다음과 같습니다.
+```assembly
+function:
+    push ebp
+    mov ebp, esp
+    ; 함수 첫번쨰 인자는 ebp+8, 두번째 인자는 ebp+12 ...
+    ; 함수 내용
+    pop ebp
+    ret
+```
+다른 Assembly나 C 코드에서 함수를 호출할 때 인자가 전달되면, 함수에서 인자를 이용하기 위해서는 ebp+8을 첫번쨰 인자로 시작해 사용하면 됩니다. 이는 함수 사용시 Stack에 ebp, eip레지스터가 push되기 때문입니다.
+
+
+예를 들어 인자가 2개인 함수 function을 function(2, 3)로 호출하고, function에서 push ebp까지 실행되면 Stack은 위 그림의 형태가 됩니다. 이때 eip는 함수가 호출된 코드, 즉 함수가 끝나면 돌아갈 주소를 저장하고 있습니다. 따라서 함수의 인자를 사용하려면 ebp+8부터 사용해야 합니다.
+
+함수의 리턴값은 일반적으로 eax레지스터에 저장됩니다.
+
+### Programmable Interrupt Controller
+PIC는 하드웨어가 프로세서를 Interrupt할 수 있게 합니다. 이때 PIC는 master과 slave로 나뉩니다.
+
+* IRQ 0~7을 처리하는 master
+    * Control Port: 0x20 & 0x21
+* IRQ 8~15을 처리하는 slave
+    * Control Port: 0xA0 & 0xA1
+
+IRQ는 Interrupt에 맵핑되어 있는데, 이때 default로 IRQ는 8~15번 Interrupt에 맵핑되어 있습니다. 하지만 Protected Mode에서 해당 Interrupt는 reserved 되어 있어 PIC를 다시 맵핑해줘야 합니다.
+
+### Heap
+Heap은 메모리에서 사용가능한 매우 큰 부분으로, Kernel에서 필요할 때 Heap에서 메모리를 할당받고(malloc) 사용을 완료하면 Heap에게 알립니다(free). Protected Mode에서는 32bit 메모리 주소에 접근 가능하므로, 최대 4.29Gb Ram에 접근할 수 있습니다. 설치된 메모리중 Heap은 하드웨어(VGA, 기타 장치)가 사용하지 않는 메모리를 가리킬 수 있으며, 본 강의에서는 Heap은 4098byte을 블록의 한 단위로 하여 다음과 같이 구현합니다.
+
+* Enty Table: 어떤 메모리가 사용 중이고, 사용 가능한지 나타낸 Table; Table의 하나의 원소는 1byte 크기로 한 블록(4096byte) 표현
+    * Entry 구조
+        * Entry Type (0-3): 사용 가능/불가능 표현
+        * Flags (4-7)
+            * 0 (4-5): Unused
+            * IS_FIRST (6): 메모리 할당에서 첫번째에 원소에 해당하는지
+            * HAS_N (7): 배열에서 바로 왼쪽 옆 원소가 같은 메모리 할당에 해당하는지
+* Data Pool: 사용가능한 메모리를 가리키는 포인터
+
+다음은 메모리를 할당하는 과정(malloc)입니다.
+
+1. malloc 함수에서 인자로 넘겨받은 size를 통해 할당할 블록 수를 계산 (블록 단위로만 할당 가능하기 때문)
+2. Entry Table에서 사용가능한 상태인 블록 탐색
+    * 11000001b: 사용 불가 & 첫번째 블록 & 옆 원소도 같은 메모리 할당임
+    * 10000001b: 사용 불가 & 첫번째 블록 X & 옆 원소도 같은 메모리 할당임
+    * 01000001b: 사용 불가 & 첫번째 블록 & 메모리 할당의 마지막 원소
+    * 00000001b: 사용 불가 & 첫번째 블록 X & 메모리 할당의 마지막 원소
+    * 00000000b: 사용 가능
+3. 하나 이상의 블록이 필요하면 옆 블록도 사용가능한지 확인
+4. 사용가능한 블록 찾으면 사용한다고 표시
+5. 블록의 시작 주소 계산 Data pool 시작 주소 + (블록 번호)*(블록 크기)
+
+다음은 메모리를 해제하는 과정(free)입니다.
+
+1. free할 블록 개수 계산 (HAS_N bit으로 알 수 있음)
+2. Entry Table에서 해당 블록을 0x00로 설정
