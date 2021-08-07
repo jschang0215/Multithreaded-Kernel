@@ -30,3 +30,20 @@ GDT를 설정한 후에는 기존의 CS레지스터 값을 GDT Code Segment으�
 
 ### Cross Compiler Setting
 Cross Compiler는 https://wiki.osdev.org/GCC_Cross-Compiler#Installing_Dependencies 을 보고 OS에 맞게 진행하시면 됩니다.
+
+### Text Mode
+Text Mode에서는 Ascii 문자를 VGA 메모리에 접근해 화면에 문자를 출력하게 합니다. VGA 메모리는 0xB8000부터 시작하며, 각 문자는 2byte(Ascii code, Color mode) 크기를 가집니다.
+
+### IDT(Interrupt Descriptor Table)
+IDT는 Protected Mode에서 Interrupt에 대한 정보를 담고 있습니다. IDT는 Interrupt Descriptor을 원소로 하는 비열로 이루어져 있으며, IDT의 n번째 인덱스 원소는 Interrupt n에 해당합니다.
+
+* Offset (46-63): offset의 상위 주소
+* P (47)
+* DPL (45-46): Interrupt가 실행될 Ring Level
+* S (44)
+* Type (40-43): Gate Types
+* 0 (32-39): Unused bits
+* Selector (16-31): Interrupt의 Selector
+* Offset (0-15): offset의 하위 주소
+
+IDTR은 IDT를 가리키는 자료구조로 IDT의 주소(Base)와, IDT 크기 - 1(Limit)에 대한 정보를 가집니다. IDT를 부르려면 lidt 명령어를 이용합니다.
