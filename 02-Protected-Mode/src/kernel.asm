@@ -20,6 +20,17 @@ _start:
     or al, 2
     out 0x92, al
 
+    ; Remap master PIC
+    mov al, 00010001b ; initialization mode
+    out 0x20, al
+    mov al, 0x20 ; master ISR은 Interrupt 0x20에서 시작
+    out 0x21, al
+    mov al, 000000001b
+    out 0x21, al
+
+    ; Enable Interrupts
+    sti
+    
     call kernel_main
 
     jmp $
