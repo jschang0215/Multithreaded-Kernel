@@ -27,9 +27,6 @@ _start:
     out 0x21, al
     mov al, 000000001b
     out 0x21, al
-
-    ; Enable Interrupts
-    sti
     
     call kernel_main
 

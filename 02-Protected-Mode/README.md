@@ -105,3 +105,19 @@ Heap은 메모리에서 사용가능한 매우 큰 부분으로, Kernel에서 �
 
 1. free할 블록 개수 계산 (HAS_N bit으로 알 수 있음)
 2. Entry Table에서 해당 블록을 0x00로 설정
+
+### Paging
+Paging은 메모리 주소를 재맵핑하여 다른 메모리 주소를 가리키도록 합니다. Paging은 4096byte 크기의 블록 단위로 이루어지며, 이러한 블록들을 page라고 합니다. Paging은 MMU(Memory Management Unit)에 의해 활성화되어, 가상 메모리주소(Virtual Address: 메모리 주소가 실제 접근하는 주소랑 다름)를 물리적 메모리 주소(Physical Address: 메모리 주소가 실제 접근하는 주소와 동일)로 연결합니다.
+
+Paging의 구조는 Page Directories -> Page Table -> Memory순으로 이루어집니다.
+
+* 1024개의 Page Directories는 각각 1024개의 Page Table을 가리킨다.
+    * Page Directory는 Page Table에 대한 포인터, 설정을 담고 있다.
+* 1024개의 Page Table은 각각 4096byte의 메모리를 담당한다.
+* 각 4096byte의 메모리를 page라 한다.
+
+Paging을 이용할 경우의 장점은 다음과 같습니다.
+
+* 각 프로세스는 같은 가상 메모리 주소를 가리키면서 사용 가능 (이떄 서로 곂쳐서 사용되지 않음)
+* 가상 메모리 주소를 사용함으로서 다른 프로세스가 사용하는 메모리를 알 수 없게 해 보안이 강화
+* 프로그램의 코드에 데이터를 덮어씌우는 것과 같은 취약점을 방지할 수 있음

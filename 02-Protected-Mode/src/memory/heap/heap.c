@@ -35,7 +35,7 @@ int heap_create(struct heap *heap, void *ptr, void *end, struct heap_table *tabl
         goto out;
     }
 
-    memset(heap, 0, sizeof(heap));
+    memset(heap, 0, sizeof(struct heap));
     heap->saddr = ptr;
     heap->table = table;
 
@@ -65,7 +65,7 @@ static uint32_t heap_align_value_to_upper(uint32_t val)
 static int heap_get_entry_type(HEAP_BLOCK_TABLE_ENTRY entry)
 {
     // 처음 4개 bit 리턴
-    return entry & 0b1111;
+    return entry & 0x0f;
 }
 
 int heap_get_start_block(struct heap *heap, uint32_t total_blocks)
@@ -84,8 +84,8 @@ int heap_get_start_block(struct heap *heap, uint32_t total_blocks)
         if (block_start == -1) // 첫번째 블록일 때
         {
             block_start = i;
-            block_cnt++;
         }
+        block_cnt++;
         if (block_cnt == total_blocks)
         {
             break;
@@ -105,12 +105,11 @@ void *heap_block_to_address(struct heap *heap, int block)
 
 int heap_address_to_block(struct heap *heap, void *address)
 {
-    return (int)(address - heap->saddr) / HEAP_BLOCK_SIZE;
+    return ((int)(address - heap->saddr)) / HEAP_BLOCK_SIZE;
 }
 
 void heap_mark_blocks_taken(struct heap *heap, int start_block, uint32_t total_blocks)
 {
-    struct heap_table *table = heap->table;
     int end_block = start_block + total_blocks - 1;
 
     HEAP_BLOCK_TABLE_ENTRY entry = HEAP_BLOCK_TABLE_ENTRY_TAKEN | HEAP_BLOCK_IS_FIRST;
@@ -121,7 +120,7 @@ void heap_mark_blocks_taken(struct heap *heap, int start_block, uint32_t total_b
 
     for (int i = start_block; i <= end_block; i++)
     {
-        table->entries[i] = entry;
+        heap->table->entries[i] = entry;
         entry = HEAP_BLOCK_TABLE_ENTRY_TAKEN;
         if (i != end_block - 1)
         {
