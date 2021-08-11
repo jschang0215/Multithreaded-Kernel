@@ -121,3 +121,19 @@ Paging을 이용할 경우의 장점은 다음과 같습니다.
 * 각 프로세스는 같은 가상 메모리 주소를 가리키면서 사용 가능 (이떄 서로 곂쳐서 사용되지 않음)
 * 가상 메모리 주소를 사용함으로서 다른 프로세스가 사용하는 메모리를 알 수 없게 해 보안이 강화
 * 프로그램의 코드에 데이터를 덮어씌우는 것과 같은 취약점을 방지할 수 있음
+
+### PCI IDE Controller
+IDE는 ATA 드라이브를 다른 장치와 연결하는 케이블입니다. IDE는 다음 4개의 드라이브를 연결할 수 있습니다.
+
+* ATA (Serial): modern hard dirves
+* ATA (Parallel): hard drives
+* ATAPI (Serial): modern optical drives
+* ATAPI (Parallel): optical drives
+
+ATA 드라이브에서 읽는 과정은 다음과 같습니다.
+
+1. master dirve를 선택하고 LBA 전달
+2. 읽을 sector 개수 전달
+3. 0x20(읽기 명령어)로 읽기 시작
+4. buffer가 준비되기 까지 대기
+5. ATA controller에서 2byte씩 buffer에 읽음
