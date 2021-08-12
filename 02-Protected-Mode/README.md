@@ -137,3 +137,17 @@ ATA 드라이브에서 읽는 과정은 다음과 같습니다.
 3. 0x20(읽기 명령어)로 읽기 시작
 4. buffer가 준비되기 까지 대기
 5. ATA controller에서 2byte씩 buffer에 읽음
+
+### Filesystem
+파일 시스템은 디스크에 정보가 어떻게 저장되어 있는지 나타내는 구조입니다. 운영체제는 파일 시스템의 구조를 이용해 디스크에서 파일을 읽을 수 있습니다.
+
+파일 시스템을 이해하기 위해서는 디스크에 대해 이해해야 합니다. 디스크는 sector를 단위로 분리된 정보의 배열에 불과합니다. 각 sector는 LBA 번호로 메모리에서 읽을 수 있으며, 우리가 부르는 '파일'은 디스크에 '존재'하는 것이 아닌, 파일 시스템에 의해 구현되는 것입니다.
+
+파일 시스템의 파일 시스템 구조 헤더는 디스크에 있는 파일 개수, root 디렉터리 위치 등을 저장합니다. 파일 시스템은 FAT 16, FAT32, NTFS 등의 여러 종류가 있는데, 본 강의에서는 FAT 16에 대해 다룹니다. 다음은 FAT 16(File Allocation Table)의 구조입니다.
+
+* 첫 번째 Sector: Boot Sector & Reserved Sector 개수 나타냄
+* Reserved Sector: 파일 시스템이 무시하는 Sector
+* 첫 번째 File Allocation Table: 사용 중 가능한 디스크 표시하는 Table
+* 두 번째 File Allocation Table: Optional
+* Root Directory: Root Directory에 어떤 파일/디렉터리가 있는지 나타냄; 파일/디렉터리 이름, 특성(ex Read Only), 디스크에서의 위치에 대한 정보 담음
+* Data Region: 데이터가 존재하는 공간
