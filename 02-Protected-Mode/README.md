@@ -151,3 +151,37 @@ ATA 드라이브에서 읽는 과정은 다음과 같습니다.
 * 두 번째 File Allocation Table: Optional
 * Root Directory: Root Directory에 어떤 파일/디렉터리가 있는지 나타냄; 파일/디렉터리 이름, 특성(ex Read Only), 디스크에서의 위치에 대한 정보 담음
 * Data Region: 데이터가 존재하는 공간
+
+### File Allocation Table (FAT)
+FAT16은 cluster로 데이터와 하위 디렉터리를 표현합니다. 이때 각 cluster는 정해진 수의 sector을 이용하는데, FAT 16은 하나의 데이터에 대해 최소한 하나의 cluster를 사용하기 때문에 저장 공간이 낭비되는 단점이 있습니다. FAT 16은 최대 2Gb 크기의 파일을 지원합니다. 다음은 FAT 16의 디스크 레이아웃과 크기입니다.
+
+* Boot Sector: 512byte
+* Reserved Sector: Fat_header.reserved_sectors * 512 (Kernel 코드)
+* FAT1: Fat_header.sectors_per_fat * 512
+* FAT2: Fat_header.sectors_per_fat * 512 (Optional; 백업으로 사용)
+* Root Directory: Fat_header.root_dir_entries * sizeof(struct fat_directory_item)
+* Data Clusters
+
+**FAT** FAT16에서 각 Entry는 2byte 크기이고 data cluster의 cluster의 사용 가능 여부를 표현합니다. 만약 2개 이상의 cluster가 필요한 파일의 경우, FAT는 다음 cluster에 대한 정보를 가지고 있어 마치 linked-list처럼 cluster를 표현하며, 해당 파일의 마지막 cluster일 경우, 0xffff을 데이터로 합니다.
+
+![FAT16](https://www.pctechguide.com/wp-content/uploads/2011/09/31fat.gif)
+
+위 그림에서 FAT의 인덱스 2번은 data cluster에서 2번째 cluster를 가리키며, FAT의 인덱스 2번의 데이터 3은 해당 파일이 FAT의 인덱스 3번이 가리키는 cluster도 사용하는 것을 의미합니다. FAT의 인덱스 3의 데이터 4에 의해 해당 파일은 FAT의 인덱스 4번이 가리키는 cluster도 사용하며, FAT의 인덱스 4번은 0xFFFF이므로, 해당 파일의 마지막 cluster임을 의미합니다. 즉, file1.txt는 data cluster의 2, 3, 4 cluster를 사용하는 것입니다. 
+
+**Root Directry** 다음은 FAT16의 디렉터리 Entry입니다. FAT16의 디렉터리 Entry는 다음 내용을 가집니다.
+
+* Filename (8byte; 사용하지 않는 부분은 Space)
+* Extension (3byte; 사용하지 않는 부분은 Space)
+* Attribute
+    * 0x01: Read-only
+    * 0x02: File hidden
+    * 0x04: System file
+    * 0x08: Volume label
+    * 0x10: Subdirectory
+    * 0x20: Archived
+    * 0x40: Device
+    * 0x80: Reserved
+* Reserved
+* Creation date, Last access
+* First cluster bits
+* Filesize
