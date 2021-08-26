@@ -185,3 +185,14 @@ FAT16은 cluster로 데이터와 하위 디렉터리를 표현합니다. 이때 
 * Creation date, Last access
 * First cluster bits
 * Filesize
+
+### VFS (Virtual File System) Layer
+VFS Layer는 kernel이 무한히 많은 파일 시스템을 처리하고, 언제든지 Load/Unload 할 수 있게 하며, 다양한 종류의 파일 시스템에 대해 동일한 프로그래밍 인터페이스를 제공합니다. 디스크가 삽입되었을 때, 커널에 구현돼있는 파일시스템들에 대해 디스크의 파일시스템을 처리할 수 있으면, 해당 파일시스템을 이용해 디스크를 사용합니다. 이를 통해 해당 파일이 어떠한 파일 시스템을 사용하는지 신경 쓸 필요없이 파일을 읽을 수 있습니다.
+
+**fopen Communication** fopen("0:/test.txt", "r)이 입력으로 주어지면 다음 순서로 파일을 읽습니다.
+
+1. Path Parser에 의해 path root와 path part 알아냄
+2. 해당 디스크의 헤더 참조해 파일시스템 알아냄
+3. 해당 파일시스스템으로 디스크 참조
+4. File descriptor 리턴
+5. 리턴한 File descriptor을 이용해 fread 함수로 파일을 읽을 수 있습니다.

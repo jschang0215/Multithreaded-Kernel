@@ -7,6 +7,7 @@
 #include "disk/streamer.h"
 #include "fs/pparser.h"
 #include "string/string.h"
+#include "fs/file.h"
 
 uint16_t *video_mem = 0;
 uint16_t terminal_row = 0;
@@ -70,6 +71,9 @@ void kernel_main()
     // initialize heap
     kheap_init();
 
+    // intialize filesystem
+    fs_init();
+
     // intialize idt
     idt_init();
 
@@ -86,13 +90,16 @@ void kernel_main()
     // enable interrupts
     enable_interrupts();
 
+    int fd = fopen("0:/hello2.txt", "r");
+    if (fd)
+    {
+        print("Opened!");
+    }
     struct disk_stream *stream = disk_streamer_new(0);
     disk_streamer_seek(stream, 0x201);
     unsigned char c = 0;
     disk_streamer_read(stream, &c, 1);
     while (true)
     {
-        
     }
-    
 }

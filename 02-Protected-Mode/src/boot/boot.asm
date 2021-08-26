@@ -5,12 +5,31 @@ CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
 
 ; BPB 첫 3byte
-__start:
-    jmp short _start
-    nop
+jmp short _start
+nop
 
-; Bios Parameter Block 초기화 부분
-times 33 db 0
+; FAT16 Header
+ODEMIdentifier      db 'ChangOS ' ; OEM Identifier는 8byte
+BytesPerSector      dw 0x200 ; 512byte Per Sector
+SectorPerCluster    db 0x80
+ReservedSectors     dw 200 ; Kernel 코드가 있는 영역
+FATCopies           db 0x02
+RootDirEntries      dw 0x40
+NumSectors          dw 0x00
+MediaType           db 0xF8
+SectorsPerFat       dw 0x100
+SectorsPerTrack     dw 0x20
+NumberOfHeads       dw 0x40
+HiddenSectors       dd 0x00
+SectorsBig          dd 0x773594
+
+; Extended BPB (Dos 4.0)
+DriveNumber         db 0x80
+WinNTBit            db 0x00
+Signature           db 0x29
+VolumeID            dd 0xD105
+VolumeIDString      db 'ChangOSBOOT'
+SystemIDString      db 'FAT16   '
 
 _start:
     jmp 0:start ; Code Segment 0 설정하면서 start로 점프
